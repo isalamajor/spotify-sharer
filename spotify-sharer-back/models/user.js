@@ -19,6 +19,7 @@ const userSchema = new Schema({
   }
 })
 
+userSchema.index({ username: 1, group: 1 }, { unique: true })
 
 userSchema.set('toJSON', {
   transform: (document, returnedObject) => {

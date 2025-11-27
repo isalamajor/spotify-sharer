@@ -9,6 +9,7 @@ router.get("/", SongController.getSongs);
 router.get("/:username", auth.authentificate, SongController.getUserSongs); 
 router.post("/", auth.authentificate, SongController.postSong);
 router.delete("/:id", auth.authentificate, SongController.deleteSong);
+router.get("/check/:trackId", auth.authentificate, SongController.checkTrackId); 
 
 
 // Exportar router

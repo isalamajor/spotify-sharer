@@ -48,7 +48,7 @@ const login = async (req, res) => {
     const users = await User.find( { group : group._id } ).select("username")
     const usersWithSongs = await Promise.all(
       users.map(async (user) => {
-        const songs = await Songs.find({ poster: user._id }).select("spotifyId created_at").sort({ created_at: -1 }) .lean()
+        const songs = await Songs.find({ poster: user._id }).select("spotifyId created_at").sort({ created_at: -1 }).lean()
         return { ...user.toObject(), songs }
       })
     )
@@ -70,26 +70,27 @@ const login = async (req, res) => {
 }
 
 
-
-const deleteGroup =  async (req, res) => {
+const deleteGroup = async (req, res) => {
   try {
-    const groupId = req.params.id
+    const groupId = req.params.id;
     
-    if (groupId !== req.group.id) {
-      return res.status(401).end()
+    if (groupId.toString() !== req.group.id.toString()) {
+      return res.status(401).end();
     }
-    const deleted = await Group.findByIdAndDelete(groupId)
+
+    const deleted = await Group.findByIdAndDelete(groupId);
+
     if (deleted) {
-      return res.status(204).end()
+      return res.status(204).end();
     }
-    return res.status(404).end()
+
+    return res.status(404).end();
   } catch (error) {
     return res.status(500).json({
       error: error.message
-    })
+    });
   }
-}
-
+};
 
 
 const createGroup = async (req, res) => {
@@ -192,6 +193,8 @@ const addMembers = async (req, res) => {
     });
   }
 }
+
+
 
 
 
