@@ -29,6 +29,7 @@ body {
   margin:0;
   min-width: 320px;
   height: auto;
+  overflow-x: hidden;
 }
 
 h1 {
@@ -63,7 +64,11 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+@media (max-width: 640px) { 
+  h1 {
+    font-size: 2.5em;
+    line-height: 1.1;
   }
 }

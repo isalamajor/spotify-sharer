@@ -1,7 +1,7 @@
-import { data } from "autoprefixer";
 import axios from "axios";
 
 const API_URL = 'http://localhost:3003/spotifysharer';
+//const API_URL = '/spotifysharer'
 
 
 const register = async (groupName, password) => {
@@ -32,7 +32,7 @@ const login = async (groupName, password) => {
         });
         if (response.status === 200) {
             sessionStorage.setItem("authToken", response.data.token)
-            console.log("login: ", response.data)
+            sessionStorage.setItem("groupData", JSON.stringify(response.data.groupData))
             return { ok: true, data: response.data.groupData }
             // :id, name, members {_id, username, songs {_id, spotifyId, created_at}}
         }
@@ -52,7 +52,6 @@ const addMembers = async (usernames) => {
 
     try {
         const token = sessionStorage.getItem("authToken");
-        console.log('Token', token)
         if (!usernames || usernames.length < 1) return -1;
         const response = await axios.post(`${API_URL}/group/users/`, { usernames },
             { 
@@ -62,7 +61,6 @@ const addMembers = async (usernames) => {
             }
         );
         if (response.status === 200 || response.status === 207) {
-            console.log("add:", response.data.members)
             return { ok: true, data: response.data.members } // Array of members (_id, username)
         }
         console.error("Error adding members:", response.data.error);
@@ -100,22 +98,23 @@ const addSong = async (username, spotifyId) => {
 
 
 
-const checkSong = async (spotifyId) => {
+
+const deleteSong = async (songId) => {
     try {
         const token = sessionStorage.getItem("authToken");
-        if (!username || !spotifyId) return { ok: false, error: 'Missing fields'};
-        const response = await axios.post(`${API_URL}/song/`, { username, spotifyId },
+        if (!songId) return { ok: false, error: 'Missing fields'};
+        const response = await axios.delete(`${API_URL}/song/${songId}`,
             { 
                 headers: {
                 'Authorization': `${token}`
                 }
             }
         );
-        if (response.status === 201) {
-            return { ok: true, data: response.data.songAdded };
+        if (response.status === 204) {
+            return { ok: true };
         }
-        console.error("Error adding song:", response.data.error);
-        return { ok: false, error: response.data.error || 'Error adding song'};
+        console.error("Error deleting song:", response.data.error);
+        return { ok: false, error: response.data.error || 'Error deleting song'};
     }
     catch (error) {
         console.error("Error adding song:", error);
@@ -124,5 +123,57 @@ const checkSong = async (spotifyId) => {
 }
 
 
+const checkSong = async (trackId) => {
+    try {
+        const token = sessionStorage.getItem("authToken");
+        const response = await axios.get(`${API_URL}/song/check/${trackId}`,
+            { 
+                headers: {
+                'Authorization': `${token}`
+                },
+                validateStatus: (status) => {
+                    return status === 200 || status === 404;
+                }
+            }
+        );
+        if (response.status === 200) {
+            return { ok: true, song: response.data.song };
+        }
+        return { ok: false, error: response.message || 'Track not found'};
+    }
+    catch (error) {
+        console.error("Error checking track ID:", error);
+        return { ok: false, error: error.response?.data?.error || 'Server Error'};
+    }
+}
 
-export { register, login, addMembers, addSong }
+
+
+const deleteGroup = async (pass) => {
+    try {
+        const token = sessionStorage.getItem("authToken");
+        const groupData = JSON.parse(sessionStorage.getItem("groupData") || '{}');
+        const groupId = groupData._id;
+        if (!groupId) return { ok: false, error: 'Missing fields'};
+        const response = await axios.delete(`${API_URL}/group/${groupId}`,
+            { 
+                headers: {
+                'Authorization': `${token}`
+                }
+            }
+        );
+        if (response.status === 204) {
+
+            return { ok: true };
+        }
+        console.error("Error deleting song:", response.data.error);
+        return { ok: false, error: response.data.error || 'Error deleting group'};
+    }
+    catch (error) {
+        console.error("Error deleting group:", error);
+        return { ok: false, error: error.response?.data?.error || 'Server Error'};
+    }
+}
+
+
+export { register, login, addMembers, addSong, checkSong, deleteSong, deleteGroup }
