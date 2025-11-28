@@ -1,2 +1,4 @@
 # spotify-sharer
 Share spotify songs with friends and have them available to check in a dashboard
+
+App in progress ...
