@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = 'http://localhost:3002/spotifysharer';
-//const API_URL = '/spotifysharer'
+//const API_URL = 'http://localhost:3002/spotifysharer'; // for dev phase
+const API_URL = '/spotifysharer' // to build static from backend
 
 
 const register = async (groupName, password) => {
