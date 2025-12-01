@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'http://localhost:3003/spotifysharer';
+const API_URL = 'http://localhost:3002/spotifysharer';
 //const API_URL = '/spotifysharer'
 
 
@@ -60,8 +60,9 @@ const addMembers = async (usernames) => {
                 }
             }
         );
-        if (response.status === 200 || response.status === 207) {
-            return { ok: true, data: response.data.members } // Array of members (_id, username)
+        if (response.status === 200 || response.status === 207) {         
+            sessionStorage.setItem("groupData", JSON.stringify(response.data.groupData))
+            return { ok: true, data: response.data.groupData || {}} // Array of members (_id, username)
         }
         console.error("Error adding members:", response.data.error);
         return { ok: false, error: response.data.error || 'Error adding members'};
@@ -149,11 +150,11 @@ const checkSong = async (trackId) => {
 
 
 
-const deleteGroup = async (pass) => {
+const deleteGroup = async () => {
     try {
         const token = sessionStorage.getItem("authToken");
         const groupData = JSON.parse(sessionStorage.getItem("groupData") || '{}');
-        const groupId = groupData._id;
+        const groupId = groupData.id;
         if (!groupId) return { ok: false, error: 'Missing fields'};
         const response = await axios.delete(`${API_URL}/group/${groupId}`,
             { 
